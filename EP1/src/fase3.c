@@ -5,7 +5,6 @@
 
 int num_procs;
 long num_steps;
-double step;
 long interval_size;
 
 int GetNumProcessors() {
@@ -16,7 +15,9 @@ int GetNumProcessors() {
 
 double SomaParcial(int start, int end) {
     int i;
-    double x, sum = 0.0;
+    register double x;
+    register double sum = 0.0;
+    register double step = 1.0/(double)num_steps;
     for(i=start; i < end; i++){
         x = (i+0.5)*step;
         sum += 4.0/(1.0+x*x);
@@ -47,7 +48,6 @@ int main(int argc, char* argv[]) {
         return 0;
     }
     num_steps = atol(argv[1]);
-    step = 1.0/(double)num_steps;
     num_procs = GetNumProcessors();
     interval_size = num_steps/num_procs;
 
@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
     }
     free(tids);
 
-    pi = step*sum;
+    pi = sum/num_steps; /*steps * sum*/
     printf("PI = %.20g\n", pi);
     return 0;
 }
