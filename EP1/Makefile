@@ -1,6 +1,6 @@
 CFLAGS= -Wall -ansi -pedantic -march=native -O3
 OPENMP= -fopenmp
-PTHREADS= -lpthread
+PTHREADS= -lpthread -pthread
 SRCDIR=src
 BINDIR=bin
 RELATORIODIR=doc

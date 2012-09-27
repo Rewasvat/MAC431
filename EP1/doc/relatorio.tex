@@ -1,19 +1,74 @@
-\documentclass[a4paper,11pt]{article}
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{lmodern}
+\input texbase
 
-\title{}
-\author{}
+\titulo{Exercício Programa 1}
+\materia{MAC0431 - Introdução à Computação Paralela e Distribuida}
+
+\aluno{Fernando Omar Aluani}{6797226}
+\aluno{Jefferson Serafim Ascaneo}{6431284}
 
 \begin{document}
+\cabecalho
 
-\maketitle
-\tableofcontents
+\section{Utilizando o EP}
 
-\begin{abstract}
-\end{abstract}
+\subsection{Compilando}
 
-\section{}
+Para compilar o programa, execute o comando \emph{make}. Isso compilará os 3 
+executáveis do EP (\emph{fase1}, \emph{fase2} e \emph{fase3}), cada um 
+correspondente a uma das fases pedidas no enunciado.
+
+Também é possível compilar cada fase separadamente, rodando o comando 
+\emph{make faseN}, onde N é o número da fase. Por exemplo, para compilar a
+fase 1 rode \emph{make fase1}.
+
+\subsection{Executando}
+
+Para executar a fase 1, rode \emph{./fase1}. Isso executará a fase 1, que
+calcula o $\pi$ com 1 milhão de passos, como definido no enunciado.
+
+Para executar a fase 2, rode \emph{./fase2 PASSOS}, onde PASSOS é o número
+de passos para calcular o $\pi$.
+
+Para executar a fase 3, rode \emph{./fase3 PASSOS}, onde PASSOS é o número
+de passos para calcular o $\pi$.
+
+Todas as fases imprimem o valor calculado de $\pi$ no final da execução, com
+a diferença que a fase 1 imprime com 5 casas decimais e as outras duas fases
+imprimem com 20 casas decimais.
+
+\section{Detalhes da Implementação}
+
+A fase 1 utiliza o comando \emph{\#pragma omp parallel for}, que paraleliza a
+execução do \emph{for} logo abaixo. Além disso, este comando possui a opção
+\emph{reduction(+:sum)}, que cria variáveis privadas \emph{sum} e soma seus
+valores no final do \emph{for}. A opção \emph{private(x)} faz com que a
+variável \emph{x} não seja compartilhada, mas sejam criadas variáveis privadas,
+evitando assim problemas de concorrência.
+
+A fase 2 utiliza os mesmos comandos da fase 1. Além disso, as variáveis \emph{x},
+\emph{step} e \emph{sum} são declaradas com o parâmetro \emph{register}, para
+tentar fazer o compilador deixá-las permanentemente nos registradores da máquina.
+Testamos outros comandos do OpenMP, porém não notamos nenhum ganho de performance
+com nenhum deles, já que os comandos utilizados na fase 1 já são bem eficientes.
+
+A fase 3, por meio da \emph{pthreads}, cria $N-1$ threads para calcular o $\pi$,
+onde $N$ é o número de processadores na máquina. Juntando as $N-1$ threads criadas
+mais a thread inicial de execução temos exatamente 1 thread para rodar em cada
+processador do computador. Cada thread calcula uma ``soma parcial'' do somatório,
+calculando a soma para apenas um intervalo do somatório original. Cada thread 
+faz o cálculo com um intervalo diferente, porém de mesmo tamanho. Ao final do seu
+cálculo, a thread principal (do main) dá merge nas outras $N-1$ threads, somando
+o valor que elas calcularam. A função que cada thread usa para fazer o cálculo
+parcial usa váriaveis declaradas com o parâmetro \emph{register}, para tentar 
+fazer o compilador deixá-las permanentemente nos registradores da máquina. O 
+\emph{for} nessa função foi levemente alterado para tentar diminuir o número 
+de operações, mantendo a fórmula original.
+
+\section{Conclusão}
+
+Notamos que a biblioteca OpenMP permite realizar a paralelização do código 
+facilmente, enquanto que a \emph{pthreads} exige um trabalho consideravelmente 
+maior. Além disso, o desempenho das duas soluções foi equivalente em nossos 
+testes, o que torna o uso da OpenMP preferível nesta situação.
 
 \end{document}
