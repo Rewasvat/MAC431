@@ -49,7 +49,6 @@ entrega: clean $(EXECS) pdf
 	rm -rf $(FOLDERENTREGA)
 	mkdir $(FOLDERENTREGA)
 	cp -r src $(FOLDERENTREGA)
-	cp README $(FOLDERENTREGA)
 	cp relatorio.pdf $(FOLDERENTREGA)
 	cp Makefile $(FOLDERENTREGA)
 	tar -czf $(PACOTENAME) $(FOLDERENTREGA)

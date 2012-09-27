@@ -1,0 +1,8 @@
+fase1
+fase2
+fase3
+*.pdf
+*.aux
+*.toc
+*.log
+*.tar.gz
