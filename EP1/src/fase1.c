@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 int main() {
-    long num_steps = 1000000;
+    unsigned long num_steps = 1000000;
     int i; double x, pi, step, sum = 0.0;
     step=1.0/(double)num_steps;
 #pragma omp parallel for reduction(+:sum) private(x)

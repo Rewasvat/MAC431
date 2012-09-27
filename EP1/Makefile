@@ -1,5 +1,6 @@
 CFLAGS= -Wall -ansi -pedantic -march=native
 OPENMP= -fopenmp
+PTHREADS= -lpthread
 SRCDIR=src
 BINDIR=bin
 RELATORIODIR=doc
@@ -20,7 +21,7 @@ fase2: $(BINDIR) $(BINDIR)/fase2.o
 	$(CC) $(CFLAGS) $(OPENMP) $(BINDIR)/fase2.o -o fase2 
 
 fase3: $(BINDIR) $(BINDIR)/fase3.o
-	$(CC) $(CFLAGS) $(BINDIR)/fase3.o -o fase3 
+	$(CC) $(CFLAGS) $(PTHREADS) $(BINDIR)/fase3.o -o fase3 
 
 # OBJECTS
 
@@ -31,7 +32,7 @@ $(BINDIR)/fase2.o: $(BINDIR) $(SRCDIR)/fase2.c
 	$(CC) $(CFLAGS) $(OPENMP) -c $(SRCDIR)/fase2.c -o $(BINDIR)/fase2.o
 
 $(BINDIR)/fase3.o: $(BINDIR) $(SRCDIR)/fase3.c
-	$(CC) $(CFLAGS) -c $(SRCDIR)/fase3.c -o $(BINDIR)/fase3.o
+	$(CC) $(CFLAGS) $(PTHREADS) -c $(SRCDIR)/fase3.c -o $(BINDIR)/fase3.o
 
 
 

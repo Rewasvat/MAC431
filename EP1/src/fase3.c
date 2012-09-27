@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
 
@@ -27,10 +28,10 @@ void* execute(void* arg) {
     int i, start, end;
     double* sum = (double*)malloc(sizeof(double));
     
-    i = (int)arg
+    i = (int)arg;
 
-    start = ;
-    end = ;
+    start = i*interval_size;
+    end = start + interval_size;
     *sum = SomaParcial(start, end);
     
     return sum;
@@ -38,7 +39,8 @@ void* execute(void* arg) {
 
 int main(int argc, char* argv[]) {
     int i; 
-    double pi, sum = 0.0;
+    pthread_t* tids;
+    double pi, sum = 0.0, *ptsum;
 
     if (argc < 2) {
         printf("ERRO: o numero de passos precisa ser passado.\n");
@@ -47,9 +49,9 @@ int main(int argc, char* argv[]) {
     num_steps = atol(argv[1]);
     step = 1.0/(double)num_steps;
     num_procs = GetNumProcessors();
-    interval_size = 0; /*WAT*/
+    interval_size = num_steps/num_procs;
 
-    pthread_t* tids = (pthread_t*)malloc(sizeof(pthread_t) * (num_procs-1));
+    tids = (pthread_t*)malloc(sizeof(pthread_t) * (num_procs-1));
     /* criar N-1 thread, start nelas, rodar 1 SomaParcial aqui, terminar dar merge somar tudo e bam*/
     for (i=0; i<num_procs-1; i++) {
         if ( pthread_create( &tids[i], NULL, execute, (void*)i) ) {
@@ -57,6 +59,19 @@ int main(int argc, char* argv[]) {
             return 0;
         }
     }
+
+    /*executar ultimo intervalo*/
+    sum = SomaParcial(i*interval_size, num_steps);
+
+    for (i=0; i<num_procs-1; i++) {
+        if ( pthread_join ( tids[i], (void**)&ptsum ) ) {
+            printf("error joining thread %d.\n", (int)tids[i]);
+            return 0;
+        }
+        sum += *ptsum;
+        free(ptsum);
+    }
+    free(tids);
 
     pi = step*sum;
     printf("PI = %.20g\n", pi);
