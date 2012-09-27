@@ -1,8 +1,9 @@
 CFLAGS= -Wall -ansi -pedantic -march=native
 SRCDIR=src
 BINDIR=bin
+RELATORIODIR=doc
 
-FOLDERENTREGA=$(EXEC)-diogo-e-fernando
+FOLDERENTREGA=FernandoJefferson
 PACOTENAME=$(FOLDERENTREGA).tar.gz
 
 OBJECTS=$(BINDIR)/fase1.o $(BINDIR)/fase2.o $(BINDIR)/fase3.o

@@ -3,10 +3,10 @@ RELATORIONAME=relatorio
 
 AUXILIARTEX=texbase.tex
 
-hell:
+relatorio:
 	$(PDFC) $(RELATORIONAME).tex
 
-folderup: hell
+folderup: relatorio
 	cp $(RELATORIONAME).pdf ..
 
 .PHONY: clean
