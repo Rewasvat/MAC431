@@ -1,4 +1,4 @@
-CFLAGS= -Wall -ansi -pedantic -march=native
+CFLAGS= -Wall -ansi -pedantic -march=native -O3
 OPENMP= -fopenmp
 PTHREADS= -lpthread
 SRCDIR=src
