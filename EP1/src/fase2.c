@@ -11,6 +11,7 @@ int main(int argc, char *argv[]) {
     num_steps = strtoul (argv[1], NULL, 0);
     step = 1.0/(double) num_steps;
 #pragma omp parallel for reduction(+:sum) private(x)
+    /* Testar schedule */
     for (i = 0; i < num_steps; ++i) {
         x = (i + 0.5) * step;
         sum += 4.0/(1.0 + x*x);

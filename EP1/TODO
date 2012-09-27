@@ -17,6 +17,7 @@ void main() {
     pi = step*sum;
     printf("PI = %g\n", pi);
 }
+http://openmp.org/mp-documents/omp-hands-on-SC08.pdf
 
 #####################
 # FASE 1
