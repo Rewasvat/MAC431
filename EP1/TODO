@@ -3,6 +3,7 @@
 #  Paralela e Distribuida
 ###########################################################
 
+Hello!
 código base:
 long num_steps = 1000000;
 double step;
