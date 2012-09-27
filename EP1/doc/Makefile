@@ -14,7 +14,7 @@ folderup: relatorio
 clean:
 	rm -f $(RELATORIONAME).aux
 	rm -f $(RELATORIONAME).log
-    rm -f $(RELATORIONAME).toc
+	rm -f $(RELATORIONAME).toc
 	rm -f $(RELATORIONAME).pdf
 	rm -f *~
 	rm -f ../$(RELATORIONAME).pdf
