@@ -1,4 +1,5 @@
 CFLAGS= -Wall -ansi -pedantic -march=native
+OPENMP= -fopenmp
 SRCDIR=src
 BINDIR=bin
 RELATORIODIR=doc
@@ -13,10 +14,10 @@ CC=gcc
 all: $(BINDIR) $(EXECS)
 
 fase1: $(BINDIR) $(BINDIR)/fase1.o
-	$(CC) $(CFLAGS) $(BINDIR)/fase1.o -o fase1
+	$(CC) $(CFLAGS) $(OPENMP) $(BINDIR)/fase1.o -o fase1
 
 fase2: $(BINDIR) $(BINDIR)/fase2.o
-	$(CC) $(CFLAGS) $(BINDIR)/fase2.o -o fase2 
+	$(CC) $(CFLAGS) $(OPENMP) $(BINDIR)/fase2.o -o fase2 
 
 fase3: $(BINDIR) $(BINDIR)/fase3.o
 	$(CC) $(CFLAGS) $(BINDIR)/fase3.o -o fase3 
@@ -24,10 +25,10 @@ fase3: $(BINDIR) $(BINDIR)/fase3.o
 # OBJECTS
 
 $(BINDIR)/fase1.o: $(BINDIR) $(SRCDIR)/fase1.c
-	$(CC) $(CFLAGS) -c $(SRCDIR)/fase1.c -o $(BINDIR)/fase1.o
+	$(CC) $(CFLAGS) $(OPENMP) -c $(SRCDIR)/fase1.c -o $(BINDIR)/fase1.o
 
 $(BINDIR)/fase2.o: $(BINDIR) $(SRCDIR)/fase2.c
-	$(CC) $(CFLAGS) -c $(SRCDIR)/fase2.c -o $(BINDIR)/fase2.o
+	$(CC) $(CFLAGS) $(OPENMP) -c $(SRCDIR)/fase2.c -o $(BINDIR)/fase2.o
 
 $(BINDIR)/fase3.o: $(BINDIR) $(SRCDIR)/fase3.c
 	$(CC) $(CFLAGS) -c $(SRCDIR)/fase3.c -o $(BINDIR)/fase3.o
