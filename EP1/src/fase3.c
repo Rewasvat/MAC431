@@ -15,12 +15,12 @@ int GetNumProcessors() {
 
 double SomaParcial(int start, int end) {
     int i;
-    register double x;
     register double sum = 0.0;
-    register double step = 1.0/(double)num_steps;
-    for(i=start; i < end; i++){
-        x = (i+0.5)*step;
+    const double step = 1.0/(double)num_steps;
+    register double x = (start+0.5)*step;
+    for (i=start; i<end; i++) {
         sum += 4.0/(1.0+x*x);
+        x += step;
     }
     return sum;
 }
