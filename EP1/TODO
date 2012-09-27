@@ -3,8 +3,39 @@
 #  Paralela e Distribuida
 ###########################################################
 
+código base:
+long num_steps = 1000000;
+double step;
+void main() {
+    int i; double x, pi, sum = 0.0;
+    step=1.0/(double)num_steps;
+    for(i=0;i<num_steps;i++){
+        x = (i+0.5)*step;
+        sum += 4.0/(1.0+x*x);
+    }
+    pi = step*sum;
+    printf("PI = %g\n", pi);
+}
 
+#####################
+# FASE 1
+#####################
+-paralelizar usando OpenMP
+-deixar eficiente e com o menor número de caracteres possível
 
+#####################
+# FASE 2
+#####################
+-paralelizar usando OpenMP
+-deixar EFICIENTE
+-num_steps passado pela linha de comando
+
+#####################
+# FASE 3
+#####################
+-paralelizar usando C e PThreads
+-deixar EFICIENTE
+-num_steps passado pela linha de comando
 
 #######################
 # RELATORIO
