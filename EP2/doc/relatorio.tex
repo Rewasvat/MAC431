@@ -65,8 +65,8 @@ Processar um relatório do Git recebido como entrada, extraindo dele diversas es
 
 A função Map irá receber uma chave identificando o commit, que é um hash único gerado pelo Git,
 e o valor é todo o texto descrevendo o commit. A saída será uma série de chaves e valores,
-contendo, por exemplo, o par \texttt{<"numlinhas\_" + desenvolvedor, número de linhas \\
-modificadas neste commit>}, 
+contendo, por exemplo, o par \texttt{<"lindev\_" + desenvolvedor, número de linhas
+modificadas neste commit>}, \\
 ou o par \texttt{<"numcommits\_" + desenvolvedor, 1>}.
 
 \begin{verbatim}
