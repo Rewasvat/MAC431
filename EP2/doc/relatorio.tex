@@ -65,8 +65,26 @@ Processar um relatório do Git recebido como entrada, extraindo dele diversas es
 
 A função Map irá receber uma chave identificando o commit, que é um hash único gerado pelo Git,
 e o valor é todo o texto descrevendo o commit. A saída será uma série de chaves e valores,
-contendo, por exemplo, o par $<nomedesenvolvedor + "_numlinhas", número de linhas modificadas neste commit>$, 
-ou o par $<nomedesenvolvedor + "_numcommits", 1>$.
+contendo, por exemplo, o par \texttt{<"numlinhas\_" + desenvolvedor, número de linhas \\
+modificadas neste commit>}, 
+ou o par \texttt{<"numcommits\_" + desenvolvedor, 1>}.
+
+\begin{verbatim}
+map(chave, texto):
+    desenvolvedor = parseNomeDesenvolvedor(texto)
+    // Commits por desenvolvedor
+    collect("numcommits_" + desenvolvedor, 1)
+    total_linhas = 0
+    listaArquivos = parseArquivos(texto)
+    for arquivo in listaArquivos:
+        total_linhas += arquivo.linhas_modificadas
+        // Linhas modificadas por arquivo
+        collect("arq_" + arquivo.nome, arquivo.linhas_modificadas)
+    // Linhas modificadas por desenvolvedor
+    collect("lindev_" + desenvolvedor, total_linhas)
+    // Linhas modificadas por commit
+    collect("linhas_mod_por_commit", total_linhas)
+\end{verbatim}
 
 A função Reduce irá receber os pares produzidos pela função Map e, a partir deles, irá
 calcular a média, desvio padrão e total de cada tipo de chave.
@@ -83,7 +101,8 @@ reduce(chave, valores):
 
     media = soma/c
     collect(chave + "_media", media)
-    collect(chave + "_desvpadr", sqrt(abs(somaQuadrado - media * soma) / c))
+    collect(chave + "_desvpadr",
+            sqrt(abs(somaQuadrado - media * soma) / c))
     collect(chave + "_total", soma)
 \end{verbatim}
 \end{document}
