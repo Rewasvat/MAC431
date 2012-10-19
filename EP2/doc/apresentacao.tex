@@ -1,0 +1,153 @@
+\documentclass[brazil]{beamer}
+\usepackage{beamerthemesplit}
+\usepackage[brazilian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{fancybox}
+\usepackage{ulem}
+\usepackage{upquote}
+\usetheme{JuanLesPins}
+
+\title{MAC0431 EP2}
+\author{Fernando Omar Aluani \\ Jefferson Serafim Ascaneo}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\section{Introdução}
+
+\frame{
+  \begin{center}
+    \LARGE Introdução
+  \end{center}
+}
+
+\frame{
+  \underline{\Large Propósito:}
+  
+  \pause
+  \vspace{10pt}
+  \hspace{10pt}
+  Análise da participação de desenvolvedores em um repositório \textit{Git},
+  extraindo estatísticas dos commits no projeto.
+}
+
+\frame{
+  \underline{\Large Fonte dos Dados:}
+  
+  \pause
+  \vspace{10pt}
+  \hspace{10pt}
+  Relatório dos commits (de qualquer intervalo de tempo) de um repositório.
+  Gerado pelo próprio Git pelo comando \\
+  \begin{center}
+    \textbf{git log --numstat}
+  \end{center}
+}
+
+\section{Problema}
+
+\frame{
+  \begin{center}
+    \LARGE Problema
+  \end{center}
+}
+
+\frame{
+  \underline{\Large Entrada:}
+  
+  \pause
+  \hspace{10pt}
+  Log dos commits do Git. O log é composto pelas informações de cada commit, do
+  mais recente ao mais antigo, de forma sequencial. O ``bloco'' de cada commit
+  contêm as seguintes informações:
+  
+  \pause
+  \begin{itemize}
+    \item Hashcode que identifica unicamente o commit.
+    \item Nome e email do autor do commit.
+    \item Data e hora em que o commit foi feito.
+    \item Texto descrevendo o commit (escrito pelo autor).
+    \item Lista de triplas contendo: número de linhas adicionadas, número de linhas removidas,
+          nome do arquivo alterado.
+  \end{itemize}
+}
+
+\frame{
+  \underline{\Large Saída:}
+  
+  \pause
+  \vspace{10pt}
+  Para cada desenvolvedor que fez algum commit:
+  \begin{itemize}
+    \item Número de commits feitos pelo desenvolvedor;
+    \item Média, desvio padrão e total de linhas modificadas pelo desenvolvedor;
+  \end{itemize}
+  
+  \pause
+  \vspace{10pt}
+  Para os commits no geral:
+  \begin{itemize}
+    \item Média e desvio padrão de linhas modificadas por commit;
+  \end{itemize}
+  
+  \pause
+  \vspace{10pt}
+  Para cada arquivo alterado (criado, modificado, removido, etc) no repositório:
+  \begin{itemize}
+    \item Média e desvio padrão de linhas modificadas no arquivo.
+  \end{itemize}
+}
+
+\section{Abordagem}
+
+\frame{
+  \begin{center}
+    \LARGE Abordagem
+  \end{center}
+}
+
+\begin{frame}[fragile]
+  \underline{\Large \textbf{Map}:}
+  
+  \vspace{4pt}
+  \begin{itemize}
+    \item[Entrada] Par \verb$(Chave, Texto)$.
+    \item[Saida] Coleção de pares \verb$(Atributo, Valor)$.
+  \end{itemize}
+  
+  \pause
+  \hspace{10pt}
+  Onde:
+  \begin{itemize}
+    \item \verb$Chave$ é o hash identificando o commit;
+    \item \verb$Texto$ é o bloco de texto descrevendo o commit;
+    \item \verb$Atributo$ é o nome de algum atributo extraído do commit, 
+          como por exemplo \verb$numcommits_NomeDoDesenvolvedor$;
+    \item \verb$Valor$ é o valor desse atributo extraído do commit;
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \underline{\Large \textbf{Reduce}:}
+  
+  \vspace{4pt}
+  \begin{itemize}
+    \item[Entrada] Pares produzidos pelo \textbf{Map}.
+    \item[Saida] Coleção de pares \verb$(Estatística, Valor)$.
+  \end{itemize}
+  
+  \pause
+  \hspace{10pt}
+  Onde:
+  \begin{itemize}
+    \item \verb$Estatística$ é o nome de alguma estatística calculada a partir dos atributos do commit, 
+          como por exemplo \verb$NomeDoAtributo_media$;
+    \item \verb$Valor$ é o valor da estatística;
+  \end{itemize}
+\end{frame}
+
+
+\end{document}
