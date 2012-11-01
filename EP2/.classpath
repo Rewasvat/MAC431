@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="out/" kind="src" path=""/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/usr/share/hadoop/hadoop-tools-1.0.4.jar"/>
+	<classpathentry kind="lib" path="/usr/share/hadoop/hadoop-minicluster-1.0.4.jar"/>
+	<classpathentry kind="lib" path="/usr/share/hadoop/hadoop-core-1.0.4.jar"/>
+	<classpathentry kind="lib" path="/usr/share/hadoop/hadoop-client-1.0.4.jar"/>
+	<classpathentry kind="lib" path="/usr/share/hadoop/lib/commons-logging-api-1.0.4.jar"/>
+	<classpathentry kind="lib" path="/usr/share/hadoop/lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="output" path=""/>
+</classpath>
