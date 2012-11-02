@@ -13,10 +13,10 @@ import org.apache.hadoop.util.*;
         
 public class GitStats {
         
- public static class Map extends MapReduceBase implements Mapper<Text, Text, Text, IntWritable> {
-    private final static IntWritable one = new IntWritable(1);
+ public static class Map extends MapReduceBase implements Mapper<Text, Text, Text, DoubleWritable> {
+    private final static DoubleWritable one = new DoubleWritable(1);
         
-    public void map(Text key, Text value, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
+    public void map(Text key, Text value, OutputCollector<Text, DoubleWritable> output, Reporter reporter) throws IOException {
         String data = value.toString();
         StringTokenizer lineTokenizer = new StringTokenizer(data, "\n\r");
         
@@ -32,8 +32,8 @@ public class GitStats {
         	if (tokens == 2) {
         		if (!currentAuthor.isEmpty()) {
         			int sum = totalLinesAdd + totalLinesRemoved;
-        			output.collect(new Text("modlinesauthor_"+currentAuthor), new IntWritable(sum));
-        			output.collect(new Text("modlinescommit_"+currentHash), new IntWritable(sum));
+        			output.collect(new Text("modlinesauthor_"+currentAuthor), new DoubleWritable(sum));
+        			output.collect(new Text("modlinescommit_"+currentHash), new DoubleWritable(sum));
         			output.collect(new Text("numcommits_"+currentAuthor), one);
         		}
         		
@@ -59,26 +59,45 @@ public class GitStats {
         		totalLinesRemoved += linesRemoved;
         		
         		filepath = tokenizer.nextToken();
-        		output.collect(new Text("modlinesfile_"+filepath), new IntWritable(linesAdd + linesRemoved));
+        		output.collect(new Text("modlinesfile_"+filepath), new DoubleWritable(linesAdd + linesRemoved));
         	}
         }
 		if (!currentAuthor.isEmpty()) {
 			int sum = totalLinesAdd + totalLinesRemoved;
-			output.collect(new Text("modlinesauthor_"+currentAuthor), new IntWritable(sum));
-			output.collect(new Text("modlinescommit_"+currentHash), new IntWritable(sum));
+			output.collect(new Text("modlinesauthor_"+currentAuthor), new DoubleWritable(sum));
+			output.collect(new Text("modlinescommit_"+currentHash), new DoubleWritable(sum));
 			output.collect(new Text("numcommits_"+currentAuthor), one);
 		}
     }
  } 
         
- public static class Reduce extends MapReduceBase implements Reducer<Text, IntWritable, Text, IntWritable> {
+ public static class Reduce extends MapReduceBase implements Reducer<Text, DoubleWritable, Text, DoubleWritable> {
 
-    public void reduce(Text key, Iterator<IntWritable> values, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
-        int sum = 0;
-        while (values.hasNext()) {
-            sum += values.next().get();
+    public void reduce(Text key, Iterator<DoubleWritable> values, OutputCollector<Text, DoubleWritable> output, Reporter reporter) throws IOException {
+        int n = 0;
+        double mean = 0, M2 = 0, delta;
+        double sum = 0, variance, stddev;
+        double value;
+        
+        if(key.toString().startsWith("total_") || key.toString().startsWith("mean_")
+        		|| key.toString().startsWith("stddev_")) {
+        	output.collect(key, values.next());
+        	return;
         }
-        output.collect(key, new IntWritable(sum));
+        
+        while (values.hasNext()) {
+        	value = values.next().get();
+            sum += value;
+            n = n + 1;
+            delta = value - mean;
+            mean = mean + delta/n;
+            M2 = M2 + delta*(value - mean);
+        }
+        variance = M2/(n - 1);
+        stddev = Math.sqrt(variance);
+        output.collect(new Text("total_" + key.toString()), new DoubleWritable(sum));
+        output.collect(new Text("mean_" + key.toString()), new DoubleWritable(mean));
+        output.collect(new Text("stddev_" + key.toString()), new DoubleWritable(stddev));
     }
  }
         
@@ -87,7 +106,7 @@ public class GitStats {
     conf.setJobName("gitstats");
         
     conf.setOutputKeyClass(Text.class);
-    conf.setOutputValueClass(IntWritable.class);
+    conf.setOutputValueClass(DoubleWritable.class);
         
     conf.setMapperClass(Map.class);
     conf.setCombinerClass(Reduce.class);
