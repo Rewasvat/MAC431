@@ -33,7 +33,7 @@ public class GitStats {
         		if (!currentAuthor.isEmpty()) {
         			int sum = totalLinesAdd + totalLinesRemoved;
         			output.collect(new Text("modlinesauthor_"+currentAuthor), new DoubleWritable(sum));
-        			output.collect(new Text("modlinescommit_"+currentHash), new DoubleWritable(sum));
+        			output.collect(new Text("modlinescommit"), new DoubleWritable(sum));
         			output.collect(new Text("numcommits_"+currentAuthor), one);
         		}
         		
@@ -65,7 +65,7 @@ public class GitStats {
 		if (!currentAuthor.isEmpty()) {
 			int sum = totalLinesAdd + totalLinesRemoved;
 			output.collect(new Text("modlinesauthor_"+currentAuthor), new DoubleWritable(sum));
-			output.collect(new Text("modlinescommit_"+currentHash), new DoubleWritable(sum));
+			output.collect(new Text("modlinescommit"), new DoubleWritable(sum));
 			output.collect(new Text("numcommits_"+currentAuthor), one);
 		}
     }
@@ -100,10 +100,8 @@ public class GitStats {
         	stddev = 0.0;
         }
         output.collect(new Text("total_" + key.toString()), new DoubleWritable(sum));
-        if (!key.toString().startsWith("modlinescommit_") ) {
-            output.collect(new Text("mean_" + key.toString()), new DoubleWritable(mean));
-            output.collect(new Text("stddev_" + key.toString()), new DoubleWritable(stddev));
-        }
+        output.collect(new Text("mean_" + key.toString()), new DoubleWritable(mean));
+        output.collect(new Text("stddev_" + key.toString()), new DoubleWritable(stddev));
     }
  }
         

@@ -1,6 +1,6 @@
 \input texbase
 
-\titulo{Exercício Programa 2 - Fase I}
+\titulo{Exercício Programa 2 - Fase II}
 \materia{MAC0431 - Introdução à Computação Paralela e Distribuida}
 
 \aluno{Fernando Omar Aluani}{6797226}
@@ -34,18 +34,15 @@ extraídas dos relatórios fornecidos pelo Git.
 \subsection{Formato da Entrada de Dados}
 
 O relatório do Git é um arquivo texto contendo a descrição de cada commit feito no repositório
-de forma ordenada, do commit mais recente para o mais antigo.
+de forma ordenada, do commit mais recente para o mais antigo. Tal relatório é dado pelo comando
+\textbf{git log}, que contém diversos parâmetros para ajustar o formato do relatório.
 
-A descrição de cada commit em si segue o formato:
+Para o nosso projeto, é esperado que a descrição de cada commit no relatório tenha o seguinte
+formato:
 
 \begin{tiny}
 \begin{verbatim}
-commit <hash code>
-Author: <nome> <email>
-Date:   <data e hora>
-
-    <texto descrevendo o commit>
-
+<commit hash code> <author email>
 <número de linhas adicionadas>       <número de linhas removidas>       <caminho/nome do arquivo modificado>
 <número de linhas adicionadas>       <número de linhas removidas>       <caminho/nome do arquivo modificado>
 <número de linhas adicionadas>       <número de linhas removidas>       <caminho/nome do arquivo modificado>
@@ -53,56 +50,81 @@ Date:   <data e hora>
 \end{verbatim}
 \end{tiny}
 
-\section{Abordagem para Solução}
+Para tal, o seguinte comando é usado: 
+\begin{verbatim}
+  git log --numstat --pretty=format:"%H %ae"
+\end{verbatim}
 
-Processar um relatório do Git recebido como entrada, extraindo dele diversas estatísticas, como:
+Dessa entrada, extraímos as seguintes estatísticas:
 \begin{itemize}
 \item Número de commits por desenvolvedor;
-\item Média, desvio padrão e total de linhas modificadas por desenvolvedor;
-\item Média e desvio padrão de linhas modificadas por commit;
-\item Média e desvio padrão de linhas modificadas por arquivo.
+\item Média, desvio padrão e total de linhas modificadas de cada desenvolvedor;
+\item Média, desvio padrão e total de linhas modificadas por commit;
+\item Média, desvio padrão e total de linhas modificadas de cada arquivo.
 \end{itemize}
 
-A função Map irá receber uma chave identificando o commit, que é um hash único gerado pelo Git,
-e o valor é todo o texto descrevendo o commit. A saída será uma série de chaves e valores,
-contendo, por exemplo, o par \texttt{<"lindev\_" + desenvolvedor, número de linhas
-modificadas neste commit>}, \\
-ou o par \texttt{<"numcommits\_" + desenvolvedor, 1>}.
+%escrever um relatório descrevendo detalhes da implementação em Java (especialmente do Map/Reduce) e pontos positivos/negativos encontrados durante a implementação.
+\section{Implementação}
 
-\begin{verbatim}
-map(chave, texto):
-    desenvolvedor = parseNomeDesenvolvedor(texto)
-    // Commits por desenvolvedor
-    collect("numcommits_" + desenvolvedor, 1)
-    total_linhas = 0
-    listaArquivos = parseArquivos(texto)
-    for arquivo in listaArquivos:
-        total_linhas += arquivo.linhas_modificadas
-        // Linhas modificadas por arquivo
-        collect("arq_" + arquivo.nome, arquivo.linhas_modificadas)
-    // Linhas modificadas por desenvolvedor
-    collect("lindev_" + desenvolvedor, total_linhas)
-    // Linhas modificadas por commit
-    collect("linhas_mod_por_commit", total_linhas)
-\end{verbatim}
+\subsection{Map}
+O Map basicamente coleta as amostras de dados do arquivo de entrada. Ele recebe um par $(chave, valor)$
+de \textit{Text} (classe do Hadoop representando um texto, como uma \textit{string}), e coleta pares
+$(chave, valor)$ onde a chave é uma string com o nome do dado, e valor é um \textit{double} com o seu valor.
 
-A função Reduce irá receber os pares produzidos pela função Map e, a partir deles, irá
-calcular a média, desvio padrão e total de cada tipo de chave.
+A chave do par recebido é o hash code do commit, enquanto o valor é o próprio texto do commit, 
+separado do arquivo de entrada. O Map então processa esse texto do commit, lendo linha por linha do
+texto e analisando cada linha para extrair os dados que vamos usar, que são:
+\begin{itemize}
+  \item Número de linhas modificadas (adicionadas + removidas) para cada arquivo;
+  \item Número de commits feitos pelo autor;
+  \item Número de linhas modificadas no commit;
+  \item Número de linhas modificadas pelo autor;
+\end{itemize}
 
-\begin{verbatim}
-reduce(chave, valores):
-    soma=0
-    somaQuadrado = 0
-    c = 0
-    for v in valores:
-        soma += v
-        somaQuadrado += v*v
-        c++
+\subsection{Reduce}
+O Reduce pega os pares de dados coletados pelo Map e calcula as estatísticas (soma, média e desvio
+padrão) para cada conjunto de pares com a mesma chave. As estatísticas são coletadas e compõem
+a saída do programa, adicionando o tipo da estatística como prefixo da chave a qual ela se refere. 
 
-    media = soma/c
-    collect(chave + "_media", media)
-    collect(chave + "_desvpadr",
-            sqrt(abs(somaQuadrado - media * soma) / c))
-    collect(chave + "_total", soma)
-\end{verbatim}
+O algoritmo para calcular as estatísticas é um simples algoritmo para cálculo de soma, média e
+desvio padrão de uma lista de valores.
+
+Há alguns casos onde o resultado do desvio padrão é \textit{NaN} (not-a-number), devido a como ele
+é calculado. Nesses casos, o valor do desvio padrão é setado como 0.
+
+\subsection{InputFormat}
+O padrão do Hadoop para leitura do arquivo de entrada e distribuição dos dados dele para os vários
+nós de processamento é ler linha-por-linha, e distribuir as linhas. Isto não funcionaria no nosso
+programa, pois precisamos analisar a entrada de forma \textit{commit-por-commit}, e cada commit
+é composto por várias linhas de texto do arquivo de entrada.
+
+Portanto, derivamos a classe padrão do Hadoop que gerencia a leitura e distribuição dos dados do
+arquivo de entrada, \textit{FileInputFormat}, e criamos a nossa \textit{CommitInputFormat} que 
+separa o arquivo de entrada nos blocos relativos à cada commit, distribuindo tais blocos para
+o Map.
+
+\subsection{RecordReader}
+O \textit{InputFormat} usa internamente uma classe do Hadoop chamada \textit{RecordReader} para
+a leitura do arquivo de entrada e divisão em blocos. Para criar nosso \textit{CommitInputFormat}
+também tivemos que implementar um \textit{CommitRecordReader}.
+
+Ele lê linha-por-linha do arquivo de entrada, separando os blocos quando encontra a linha que
+indica um novo commit.
+
+
+\section{Conclusão}
+Ao implementar a solução em Hadoop, nos deparamos com os seguintes pontos:
+\subsection{Pontos Positivos}
+\begin{itemize}
+  \item Fácil implementar seu algoritmo;
+\end{itemize}
+
+\subsection{Pontos Negativos}
+\begin{itemize}
+  \item Complicado para entender a princípio;
+  \item Difícil testar/\textit{debuggar} seu programa;
+  \item Saída do programa é problemática, gerando uma pasta com alguns arquivos estranhos e dando
+        erros se a pasta já existe;
+\end{itemize}
+
 \end{document}
