@@ -76,7 +76,8 @@ public class GitStats {
     public void reduce(Text key, Iterator<DoubleWritable> values, OutputCollector<Text, DoubleWritable> output, Reporter reporter) throws IOException {
         int n = 0;
         double mean = 0, M2 = 0, delta;
-        double sum = 0, variance, stddev;
+        double sum = 0, variance;
+        Double stddev;
         double value;
         
         if(key.toString().startsWith("total_") || key.toString().startsWith("mean_")
@@ -95,9 +96,14 @@ public class GitStats {
         }
         variance = M2/(n - 1);
         stddev = Math.sqrt(variance);
+        if (stddev.equals(Double.NaN)) {
+        	stddev = 0.0;
+        }
         output.collect(new Text("total_" + key.toString()), new DoubleWritable(sum));
-        output.collect(new Text("mean_" + key.toString()), new DoubleWritable(mean));
-        output.collect(new Text("stddev_" + key.toString()), new DoubleWritable(stddev));
+        if (!key.toString().startsWith("modlinescommit_") ) {
+            output.collect(new Text("mean_" + key.toString()), new DoubleWritable(mean));
+            output.collect(new Text("stddev_" + key.toString()), new DoubleWritable(stddev));
+        }
     }
  }
         
@@ -121,8 +127,8 @@ public class GitStats {
      * conf.setOutputPath(new Path(args[1]));
      */
 
-	System.out.println("Arg0 = "+args[0]);
-	System.out.println("Arg1 = "+args[1]);
+	/*System.out.println("Arg0 = "+args[0]);
+	System.out.println("Arg1 = "+args[1]);*/
 	CommitInputFormat.setInputPaths(conf, new Path(args[0]));
     FileOutputFormat.setOutputPath(conf, new Path(args[1]));
         
