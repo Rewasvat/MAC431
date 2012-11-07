@@ -1,0 +1,102 @@
+cd08da598ab4753153f336e2cb634a96a967d0f5 fernando_aluani@hotmail.com
+-	-	EP2/doc/apresentacao.pdf
+153	0	EP2/doc/apresentacao.tex
+
+c4ee32fecde74fd797ef37d0e5e8b324e0e732d1 fernando_aluani@hotmail.com
+4	0	README
+0	4	README.md
+
+22852d0a8dcb9f0e1a434f9ae36efe54ac12aa50 jefferson.a@gmail.com
+-	-	EP2/doc/relatorio.pdf
+2	2	EP2/doc/relatorio.tex
+
+16e38f3f4060ff62e69cadfc2cc6d6771dfc0dac jefferson.a@gmail.com
+-	-	EP2/doc/relatorio.pdf
+23	4	EP2/doc/relatorio.tex
+
+b417051f357cead7aa732fc84c09aacbf68c2e1a fernando_aluani@hotmail.com
+66	0	EP2/Makefile
+20	0	EP2/doc/Makefile
+-	-	EP2/doc/relatorio.pdf
+89	0	EP2/doc/relatorio.tex
+47	0	EP2/doc/texbase.tex
+
+02322970aa8177355090f9d166e3599583290cd6 fernando_aluani@hotmail.com
+-	-	EP2/files/ep2-hadoop.pdf
+
+cc6d36b6eabe82a2b4bd3a97b26edf46a2c7f94d fernando_aluani@hotmail.com
+1	1	EP1/Makefile
+66	11	EP1/doc/relatorio.tex
+47	0	EP1/doc/texbase.tex
+1	1	EP1/src/fase2.c
+
+2bd667562e4de21740917d5815a047e7ab587c92 fernando_aluani@hotmail.com
+2	2	EP1/src/fase1.c
+5	4	EP1/src/fase2.c
+4	4	EP1/src/fase3.c
+
+9466a4922cd4e2c0259ce66fd93aa6cfee8afccd jefferson.a@gmail.com
+8e515301a5a9f22c6b887888d0ceef3864733308 jefferson.a@gmail.com
+1	0	EP1/TODO
+1	0	EP1/src/fase2.c
+
+d5c6cc1ae1f4b73078b968ad349585ed0b4654a4 fernando_aluani@hotmail.com
+1	1	EP1/Makefile
+4	4	EP1/src/fase3.c
+
+e44538c66e9844139ba0f1480c2295040c4488f1 fernando_aluani@hotmail.com
+3	2	EP1/Makefile
+1	1	EP1/src/fase1.c
+21	6	EP1/src/fase3.c
+
+a06c3e2557fdb7d2ccca5231f37b86f45d0154fe fernando_aluani@hotmail.com
+eaf53256f95097488d5ce2eb4169c2520b46bcf9 fernando_aluani@hotmail.com
+57	6	EP1/src/fase3.c
+
+04404e631aab8efe384816f45ae649e5af5e2169 jefferson.a@gmail.com
+14	8	EP1/src/fase2.c
+
+beaa4a2593697cc5d2256d3347b962de701d71f0 jefferson.a@gmail.com
+4	3	EP1/src/fase1.c
+4	2	EP1/src/fase2.c
+
+d076346556268562c4b0a9698b2cf4a542a641cd jefferson.a@gmail.com
+1	1	EP1/doc/Makefile
+
+a73876ef36d29b241b1cdd4d85aa7fd5d307e2ff jefferson.a@gmail.com
+28ca3a6d0733e7a180dcf90fce913d4651bd9e9c jefferson.a@gmail.com
+5	4	EP1/Makefile
+
+627e1c74becaa1b45323d935d59f1e34118d1452 fernando_aluani@hotmail.com
+4633a800ee67ea03810c605689d8fedc86488a37 fernando_aluani@hotmail.com
+8	0	EP1/.gitignore
+0	1	EP1/Makefile
+1	0	EP1/doc/Makefile
+
+67b077cca7254ec2be72ef18fe8f755cb911783c jefferson.a@gmail.com
+9cbc0890ce3a64e511813596f21c3b25e759d636 jefferson.a@gmail.com
+1	0	EP1/src/fase1.c
+
+0805eb156be22768a493b74b2c6cef4560c94dc8 fernando_aluani@hotmail.com
+2	1	EP1/Makefile
+2	2	EP1/doc/Makefile
+19	0	EP1/doc/relatorio.tex
+
+7253d07d2676c2449bc46f99d9ab6692e7804bff jefferson.a@gmail.com
+1	0	EP1/TODO
+
+9cea46864cdcf27c8bc198c6a8033868ef8153b4 fernando_aluani@hotmail.com
+64	0	EP1/Makefile
+31	0	EP1/TODO
+19	0	EP1/doc/Makefile
+13	0	EP1/src/fase1.c
+13	0	EP1/src/fase2.c
+13	0	EP1/src/fase3.c
+
+7c6e353960eb3e08433c1863f56529de36bbea96 fernando_aluani@hotmail.com
+22	0	EP1/TODO
+-	-	EP1/files/ep1-sharedmemory.pdf
+
+3cd690aac14a82d6df3dd1a4b273752a56cb5b4b fernando_aluani@hotmail.com
+12	0	.gitignore
+4	0	README.md
