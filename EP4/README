@@ -1,0 +1,3 @@
+copy folder to /opt/AMDAPP/samples/opencl/cl/app/MatrixShift
+
+execute from /opt/AMDAPP/samples/opencl/bin/x86
