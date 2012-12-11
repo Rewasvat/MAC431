@@ -1,7 +1,7 @@
-__kernel void MatrixShift(__global const float *dM, __global const float *dR, __global int *sRow, __global int *sCol, __global int *numRows, __global int *numCols) {
+__kernel void MatrixShift(__global const float *dM, __global float *dR, __global int *sRow, __global int *sCol, __global int *numRows, __global int *numCols) {
  
     unsigned int i = get_global_id(0);
-    unsigned int j = get_global_id(0);
+    unsigned int j = get_global_id(1);
 
 	int rows = *numRows;
 	int cols = *numCols;

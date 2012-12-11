@@ -13,20 +13,19 @@
 using std::cout;
 using std::endl;
 using std::ifstream;
+using std::ofstream;
 using std::vector;
 using std::string;
 
 class Matrix {
 public:
 	Matrix(int m, int n);
-	Matrix(float** data, int m, int n) : data_(data), m_(m), n_(n) {}
+	Matrix(float* data, int m, int n) : data_(data), m_(m), n_(n) {}
 	~Matrix() { 
-		for (int i=0; i<m_; i++)
-			delete data_[i];
 		delete data_;
 	}
 
-	float** data() { return data_; }
+	float* data() { return data_; }
 	int m() { return m_; }
 	int n() { return n_; }
 
@@ -34,27 +33,25 @@ public:
 		int i, j;
 		for (i = 0; i < m_; i++) {
 			for (j = 0; j < n_; j++) {
-				printf("%f ", data_[i][j]);
+				printf("%f ", data_[i*n_ + j]);
 			}
 			printf("\n");
 	    }
 	}
 
 	size_t size() { return m_ * n_ * sizeof(float); }
+	void SaveToFile(const char* filename, const char* suffix);
 
 	static Matrix* LoadFromFile(const char* filename);
 
 private:
-	float** data_;
+	float* data_;
 	int m_;
 	int n_;
 };
 
 Matrix::Matrix(int m, int n) : m_(m), n_(n) {
-	data_ = (float**) malloc( m * sizeof(float*) );
-	int i;
-	for (i = 0; i < m; i++)
-		data_[i] = (float*) malloc( n * sizeof(float) );
+	data_ = (float*) malloc( m * n * sizeof(float) );
 }
 
 Matrix* Matrix::LoadFromFile(const char* filename) {
@@ -80,18 +77,33 @@ Matrix* Matrix::LoadFromFile(const char* filename) {
         }
 		gotN = true;
 	}
-	float** data = (float**) malloc( m * sizeof(float*) );
-	int i, j;
-	for (i = 0; i < m; i++) {
-		data[i] = (float*) malloc( n * sizeof(float) );
-		for (j = 0; j < n; j++) {
+	float* data = (float*) malloc( m * n * sizeof(float) );
+	int i;
+	for (i = 0; i < m*n; i++) {
+        data[i] = raw_data[i];
+		/*for (j = 0; j < n; j++) {
 			data[i][j] = raw_data[ i*n + j ];
-		}
+		}*/
 	}
 
 	return new Matrix(data, m, n);
 }
 
+void Matrix::SaveToFile(const char* filename, const char* suffix) {
+    string filePath = string(filename) + string(suffix);
+    ofstream ofs (filePath.c_str());
+
+    for (int i=0; i < m_; i++) {
+        for (int j=0; j < n_; j++) {
+            ofs << data_[i*n_ + j] << " ";
+        }
+        ofs << endl;
+    }
+    
+    ofs.close();
+}
+
+/******/
 
 int main(int argc, char* argv[]) {
 	if (argc < 4) {
@@ -107,6 +119,7 @@ int main(int argc, char* argv[]) {
 	int matrixNumRows = M->m();
 	int matrixNumCols = M->n();
 
+    printf("InputShape=(%d, %d); RowShift(%d); ColumnShift(%d)\n", matrixNumRows, matrixNumCols, rowShift, colShift);
 	cout << "Input Matrix:" << endl;
 	M->print();
 
@@ -118,7 +131,7 @@ int main(int argc, char* argv[]) {
     
     int maxSize = 0x100000; // Max size of kernel's source code. 0x100000 corresponds to 1MB
 
-    printf("Criando o ambiente OpenCL...\n"); 
+    printf("Inicializando OpenCL...\n"); 
     // Criação do ambiente OpenCL.
     // Plataforma que será utilizada.
     cl_platform_id platform = NULL;
@@ -147,14 +160,12 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
     
-    printf("Inicializa o contexto OpenCL.\n"); 
     cl_context context = clCreateContext(0, 1, &device, NULL, NULL, &returnValue);
     if (!context) {
         printf("Erro: Falha ao criar o contexto.\n");
         return EXIT_FAILURE;
     }
     
-    printf("Inicializa uma fila de comandos.\n"); 
     // Inicializa uma fila de comandos.
     cl_command_queue commandQueue = clCreateCommandQueue(context, device, 0, &returnValue);
     
@@ -163,7 +174,6 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
     
-    printf("Alocação das estruturas na memória do dispositivo.\n");
     // Alocação das estruturas na memória do dispositivo.
     dM = clCreateBuffer(context, CL_MEM_READ_ONLY, M->size(), NULL, &returnValue);
     dR = clCreateBuffer(context, CL_MEM_WRITE_ONLY, R->size(), NULL, &returnValue);
@@ -172,7 +182,6 @@ int main(int argc, char* argv[]) {
     numRows = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(int), NULL, &returnValue);
     numCols = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(int), NULL, &returnValue);
  
-    printf("Faz a cópia dos arrays h_A e h_B para d_A e d_B.\n");
     // Faz a cópia dos arrays h_A e h_B para d_A e d_B.
     returnValue = clEnqueueWriteBuffer(commandQueue, dM, CL_TRUE, 0, M->size(), M->data(), 0, NULL, NULL);
     returnValue = clEnqueueWriteBuffer(commandQueue, sRow, CL_TRUE, 0, sizeof(int), &rowShift, 0, NULL, NULL);
@@ -181,7 +190,6 @@ int main(int argc, char* argv[]) {
     returnValue = clEnqueueWriteBuffer(commandQueue, numCols, CL_TRUE, 0, sizeof(int), &matrixNumCols, 0, NULL, NULL);
 
  
-    printf(" Abre o fonte do kernel.\n");
     // Abre o fonte do kernel.
     FILE *kernelFile;
     char *kernelStr;
@@ -193,7 +201,6 @@ int main(int argc, char* argv[]) {
     kernelSize = fread( kernelStr, 1, maxSize, kernelFile);
     fclose( kernelFile );
  
-    printf("Cria e compila o fonte do programa.\n");
     // Cria e compila o fonte do programa.
     cl_program program = clCreateProgramWithSource(context, 1, (const char **)&kernelStr, (const size_t *)&kernelSize, &returnValue);
     
@@ -212,7 +219,6 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
  
-    printf("Compila o kernel.\n");
     // Compila o kernel.
     cl_kernel matShiftKernel = clCreateKernel(program, "MatrixShift", &returnValue);
     
@@ -221,12 +227,7 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
  
-    printf("Define o grid.\n");
-    // Define o grid. Será criado um bloco com 64 threads. Cada thread será responsável por um posição dos arrays.
-    size_t TotalSize = 64;
-    size_t ThreadsPerBlock = 64;
  
-    printf("Define os parâmetros do kernel.\n");
     // Define os parâmetros do kernel.
     returnValue = 0;
     returnValue = clSetKernelArg(matShiftKernel, 0, sizeof(cl_mem), (void *)&dM);
@@ -241,7 +242,6 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
  
-    printf("Lança a execução do kernel.\n");
     // Lança a execução do kernel.
 	size_t work_size[2] = { M->m(), M->n() };
     returnValue = clEnqueueNDRangeKernel(commandQueue, matShiftKernel, 2, NULL, work_size, NULL, 0, NULL, NULL);
@@ -251,7 +251,6 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
  
-    printf("Copia o resultado d_C para h_C.\n");
     // Copia o resultado d_C para h_C.
     returnValue = clEnqueueReadBuffer(commandQueue, dR, CL_TRUE, 0, R->size(), R->data(), 0, NULL, NULL);
     
@@ -260,20 +259,19 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
  
-    printf("Finaliza a fila de comandos.\n");
     // Finaliza a fila de comandos.
     returnValue = clFlush(commandQueue);
     returnValue = clFinish(commandQueue);    
  
     printf("Output Matrix:\n");
 	R->print();
+	R->SaveToFile(argv[1], "_result");
  
-    printf("Libera a memória do host.\n");
     // Libera a memória do host.
     delete M;
 	delete R;
  
-    printf("Libera os recursos do dispositivo.\n");
+    printf("Finalizando OpenCL e liberando recursos.\n");
     // Libera os recursos do dispositivo.
     returnValue = clFlush(commandQueue);
     returnValue = clFinish(commandQueue);
