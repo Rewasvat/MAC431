@@ -1,0 +1,111 @@
+\input texbase
+
+\titulo{Exercício Programa 4}
+\materia{MAC0431 - Introdução à Computação Paralela e Distribuida}
+
+\aluno{Fernando Omar Aluani}{6797226}
+\aluno{Jefferson Serafim Ascaneo}{6431284}
+
+\begin{document}
+\cabecalho
+
+\section{Detalhes da Implementação}
+
+Nós decidimos que nosso programa de \textit{matrix shift} executa de uma vez só
+um \textit{row\underline{ }shift(R)} e um \textit{column\underline{ }shift(C)}.
+Dessa forma, o código é simplificado e o programa em si pode ser usado como uma
+ferramenta, executando-o várias vezes em cadeia para atingir uma sequência de 
+\textit{shifts} desejada.
+
+\subsection{O Algoritmo}
+O algoritmo em si é bem simples: ele lê uma matriz passada ao programa, executa
+de uma vez só uma operação de \textit{row\underline{ }shift(R)} e um 
+\textit{column\underline{ }shift(C)} juntamente (já que a ordem entre elas não importa),
+e salva a matriz resultante num outro arquivo, com o mesmo nome do arquivo original mais
+o sufixo \textquotedblleft\textit{\underline{ }result}\textquotedblright.
+
+Para tal nós seguimos o exemplo do \textbf{VectorAdd}, fazendo algumas modificações: 
+criamos uma classe para representar uma matriz $M\times N$ e nos ajudar com as operações que executamos
+com as matrizes (do lado da CPU); mudamos os parâmetros passados/recebidos do kernel da
+GPU; e mais importante, mudamos a quantidade de \textit{work items} nos quais seriam executados
+o kernel para que ele fosse executado $M\times N$ vezes, numa grade, de tal forma que o kernel fosse
+executado para cada elemento da matriz.
+
+Quanto ao kernel em si, também alteramos ele para receber os parâmetros que especificamos e 
+aplicar um \textit{row\underline{ }shift(R)} e um \textit{column\underline{ }shift(C)} de uma vez
+só. Juntando com o fato que o kernel é executado para cada elemento da matriz, o código nele fica bem simples:
+\begin{verbatim}
+unsigned int i = get_global_id(0);
+unsigned int j = get_global_id(1);
+
+unsigned int a = (i - (R)) % M; //row shift
+unsigned int b = (j + (C)) % N; //column shift
+
+matriz_resultante[a*N + b] = matriz_original[i*N + j];
+
+\end{verbatim}
+
+E desse jeito também os \textit{shifts} funcionam como mostrados no enunciado:
+\begin{itemize}
+  \item \textit{row\underline{ }shift(R)} tem um sentido \textquotedblleft para cima\textquotedblright,
+        de tal forma que com $R>0$ uma linha irá \textquotedblleft subir\textquotedblright  na matriz;
+  \item \textit{column\underline{ }shift(C)} tem um sentido \textquotedblleft para direita\textquotedblright,
+        de tal forma que com $C>0$ uma coluna irá se deslocar para a direita na matriz;
+\end{itemize}
+
+Todo o código do programa (a pasta com os arquivos, como mostrado no enunciado) está incluso neste arquivo,
+na pasta \textbf{MatrixShift}.
+
+\subsection{Entrada}
+O programa recebe três argumentos pela linha de comando ao ser executado, no formato:
+\begin{center}
+\textit{./MatrixShift <input-matrix> <row-shift-amount> <column-shift-amount>}
+\end{center}
+Onde:
+\begin{itemize}
+  \item \textit{input-matrix}: é o caminho para um arquivo de texto contendo a matriz de entrada. Cada linha do
+        arquivo é uma linha da matriz, e em cada linha os números (inteiros ou reais) devem estar separados
+        por espaços (espaços separam colunas);
+  \item \textit{row-shift-amount}: número de \textit{shifts} de linhas a fazer. É o $R$ mostrado anteriormente 
+        (\textit{row\underline{ }shift(R)});
+  \item \textit{column-shift-amount}: número de \textit{shifts} de colunas a fazer. É o $C$ mostrado anteriormente 
+        (\textit{column\underline{ }shift(C)});
+\end{itemize}
+
+Note que o programa supõe que o arquivo da matriz de entrada é bem formado. Isto é, que ele segue essa especificação
+e não tem valores não-numéricos, nem linhas de tamanhos (quantidade de valores) diferentes, etc. Passar um arquivo
+de entrada mal-formado irá fazer o programa \textit{crashar} com algum erro ou retornar resultados estranhos.
+
+\subsection{Saída}
+O programa tem duas saídas. Durante a execução ele imprime alguns valores na saída padrão, mostrando o andamento da
+execução do mesmo, e a matriz de entrada e a resultante depois das operações.
+
+Fora isso, ele também salva a matriz resultante em um arquivo com o mesmo nome do arquivo original de entrada mais
+o sufixo \textquotedblleft\textit{\underline{ }result}\textquotedblright.
+
+\section{Conclusão}
+\subsection{Pontos Positivos}
+\begin{itemize}
+  \item Os exemplos, principalmente o \textbf{VectorAdd} ajudaram bastante a entender como executar o código na GPU.
+        Só precisamos pesquisar coisas sobre OpenCL na internet para entender direito a assinatura de algumas funções
+        do OpenCL;
+  \item A \textbf{AMD APP SDK} também ajuda bastante a setar o ambiente de desenvolvimento. Sua instalação é simples
+        e não tivemos problemas em compilar e rodar o programa até numa VM com Linux rodando sobre um computador com
+        CPU Intel e GPU NVidia;
+  \item Nossa decisão de como aplicar os \textit{shifts} deixou o algoritmo bem simples;
+  \item Mensagens de erro quando o programa tenta compilar o kernel mas não consegue ajudaram a achar os problemas;
+\end{itemize}
+
+\subsection{Pontos Negativos}
+Complicação em compilar o programa dentro da hierarquia de pastas da AMD APP SDK, e rodar ele em outra pasta
+ainda nessa hierarquia. Felizmente com um pequeno script bash para copiar os arquivos e rodar os comandos
+necessários de qualquer outra pasta no sistema resolveu esse problema.
+
+Tipos dos parâmetros a serem passados para o kernel. Foi o maior problema que tivemos ao fazer o programa. Achavámos
+que podiamos passar os argumentos de um jeito, mas ou não era possível, como passar \textit{int} sendo que tinha que
+ser \textit{int*}; ou deixaria o código mais complexo, como passar a matriz no formato \textit{float**}. Depois
+passamos a matriz como um grande vetor (\textit{float*}) e tratamos ele como uma matriz no código do kernel por simplicidade.
+
+
+
+\end{document}
